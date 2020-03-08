@@ -20,9 +20,6 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码
 在脚本内，写入自己的账号密码，运行就可以自动签到了
 可以将这个脚本放到flask框架，带着账号密码参数，请求一下就自动签到了
 
-## 脚本下载
-[button color="info" icon="fa fa-github" url="https://github.com/mkdir700/chaoxing_auto_sign" type=""]github[/button]
-
 ## 实现过程
 
 ###1、 登录
