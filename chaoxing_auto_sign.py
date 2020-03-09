@@ -1,6 +1,7 @@
 import re
 import requests
 import asyncio
+import json
 
 # 签到url
 # https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/
@@ -44,7 +45,7 @@ class AutoSign(object):
         sign_re_rule = r'<div class="Mct" onclick="activeDetail\((.*),2,null\)">[\s].*[\s].*[\s].*[\s].*<dd class="green">.*</dd>'
         r = self.session.get(
             'https://mobilelearn.chaoxing.com/widget/pcpick/stu/index?courseId={}&jclassId={}'.format(
-                courseid, classid), headers=self.headers)
+                courseid, classid), headers=self.headers, verify=False)
         # Todo 获取到activeid[()]
         res = re.findall(sign_re_rule, r.text)
         if res != []:  # 满足签到条件
@@ -60,19 +61,22 @@ class AutoSign(object):
             '''手势签到'''
             # 手势签到验证URL
             # https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId=134706366&signCode=147896325
-            self.session.get(
+            check_status = self.session.get(
                 'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId={}&signCode={}'.format(
-                    activeid, '12369'), headers=self.headers)
+                    activeid, checkcode), headers=self.headers, verify=False)
+            check_status = json.loads(check_status.text)
+            if check_status['result'] == '0':
+                return '验证码错误'
             r = self.session.get(
                 'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?courseId={}&classId={}&activeId={}'.format(
-                    courseid, classid, activeid), headers=self.headers)
+                    courseid, classid, activeid), headers=self.headers, verify=False)
             res = re.findall('<title>(.*)</title>', r.text)
             return res[0]
 
         else:
             r = self.session.get(
                 'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
-                    activeid, classid, courseid), headers=self.headers)
+                    activeid, classid, courseid), headers=self.headers, verify=False)
             res = re.findall('<title>(.*)</title>', r.text)
             return res[0]
 
