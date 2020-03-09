@@ -54,16 +54,27 @@ class AutoSign(object):
                 'activeid': res[0],
                 'classname': classname}
 
-    def _sign(self, classid, courseid, activeid):
+    def _sign(self, classid, courseid, activeid, checkcode=None):
         '''签到函数'''
-        r = self.session.get(
-            'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
-                activeid,
-                classid,
-                courseid),
-            headers=self.headers)
-        res = re.findall('<title>(.*)</title>', r.text)
-        return res[0]
+        if checkcode is not None:
+            '''手势签到'''
+            # 手势签到验证URL
+            # https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId=134706366&signCode=147896325
+            self.session.get(
+                'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId={}&signCode={}'.format(
+                    activeid, '12369'), headers=self.headers)
+            r = self.session.get(
+                'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?courseId={}&classId={}&activeId={}'.format(
+                    courseid, classid, activeid), headers=self.headers)
+            res = re.findall('<title>(.*)</title>', r.text)
+            return res[0]
+
+        else:
+            r = self.session.get(
+                'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
+                    activeid, classid, courseid), headers=self.headers)
+            res = re.findall('<title>(.*)</title>', r.text)
+            return res[0]
 
     def run(self):
         # 获取主页所有课程classid和coureseid
@@ -83,5 +94,5 @@ class AutoSign(object):
 
 
 if __name__ == '__main__':
-    s = AutoSign('username', 'password')
+    s = AutoSign('user', 'passwd')
     print(s.run())
