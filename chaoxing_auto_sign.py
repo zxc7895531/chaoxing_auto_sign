@@ -80,7 +80,7 @@ class AutoSign(object):
             res = re.findall('<title>(.*)</title>', r.text)
             return res[0]
 
-    def run(self, checkcode):
+    def run(self, checkcode=None):
         # 获取主页所有课程classid和coureseid
         # 因为具体不知道那一节需要签到，则直接遍历所有课程，都进行签到操作
         classid_courseId = self._get_all_classid()
@@ -93,12 +93,14 @@ class AutoSign(object):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         result = loop.run_until_complete(asyncio.gather(*tasks))
+        return_msg = ''
         for d in result:
             if d is not None:
-                return '{}:{}'.format(d['classname'], self._sign(
+                return_msg += '{}:{}\r'.format(d['classname'], self._sign(
                     d['classid'], d['courseid'], d['activeid'], checkcode))
+        return return_msg
 
 
 if __name__ == '__main__':
-    s = AutoSign('user', 'passwd')
-    print(s.run('checkcode'))
+    s = AutoSign('username', 'password')
+    print(s.run('code'))
