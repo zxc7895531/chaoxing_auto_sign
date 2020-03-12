@@ -10,15 +10,28 @@
 
 ## 接口使用
 ```
-http://imgbed.z2blog.com/sign?username=登录用户名&password=密码
+http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 ```
 访问方式 GET
+
+【参数】
+|-
+username|用户名|必填
+password|密码|必填
+code|手势验证码|选填
+
+【如何获取手势验证码】
+![Snipaste_2020-03-09_09-34-37.png][2]
+
+如上图所示，上图验证码就为**`12369`**
+
 请求后，会自动签到所需要签到的课程
 **接口仅做学习参考，不建议长期使用**
 
 ## 脚本使用
 在脚本内，写入自己的账号密码，运行就可以自动签到了
 可以将这个脚本放到flask框架，带着账号密码参数，请求一下就自动签到了
+
 
 ## 实现过程
 
@@ -35,7 +48,7 @@ Post请求方式，参数就是账号密码
 # http://mooc1-2.chaoxing.com/visit/interaction
 ```
 访问课程主页，是获取所有课程的classid和courseid，需要这两个参数，才能拼接出该门课程的签到url
-![获取classid,courseid][2]
+![获取classid,courseid][3]
 
 ###3、访问任务页面
 ```
@@ -44,7 +57,7 @@ Post请求方式，参数就是账号密码
 ```
 从课程主页获取classid courseid，现在就可以用到了，访问该课程任务url
 这里的目的是为了获取`activeid`这个任务id
-![无图片描述][3]
+![无图片描述][4]
 
 `onclick="activeDetail(129022258,2,null)"`
 前面的数字就是`activeid` 后面的参数就是任务类型序号
@@ -66,6 +79,8 @@ Post请求方式，参数就是账号密码
 做好自动签到脚本后，可以和web结合
 QQ机器人结合，真正实现方便的一键操作
 
+
   [1]: http://assets.z2blog.com/imgbed/2020/03/06/20200306880794.png
-  [2]: http://assets.z2blog.com/imgbed/2020/03/06/20200306606197.png
-  [3]: http://assets.z2blog.com/imgbed/2020/03/06/20200306740615.png
+  [2]: https://www.z2blog.com//usr/uploads/2020/03/493803449.png
+  [3]: http://assets.z2blog.com/imgbed/2020/03/06/20200306606197.png
+  [4]: http://assets.z2blog.com/imgbed/2020/03/06/20200306740615.png
