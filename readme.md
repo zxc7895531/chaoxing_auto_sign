@@ -6,10 +6,12 @@
 
 反正搞着好玩呗
 
+
 ## 更新日志
 3.15 支持学号方式登录,目前可以通过(手机号码，邮箱，学号登录)
 
 3.10 新增手势签到(具体使用在下方)
+
 
 ## 接口使用(非长期有效)
 ```
@@ -30,6 +32,7 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 请求后，会自动签到所需要签到的课程
 **接口仅做学习参考，不建议长期使用**
 
+
 ## 脚本使用
 在脚本内，写入自己的账号密码，运行就可以自动签到了
 可以将这个脚本放到flask框架，带着账号密码参数，请求一下就自动签到了
@@ -47,7 +50,9 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 ```
 Post请求方式，参数就是账号密码
 关于学号登录方式，有一个额外参数`schoolid`
+
 http://passport2.chaoxing.com/login
+
 ![schoolid][5]
 
 
@@ -93,5 +98,6 @@ QQ机器人结合，真正实现方便的一键操作
   [2]: https://www.z2blog.com//usr/uploads/2020/03/493803449.png
   [3]: http://assets.z2blog.com/imgbed/2020/03/06/20200306606197.png
   [4]: http://assets.z2blog.com/imgbed/2020/03/06/20200306740615.png
-  [5]: https://ae01.alicdn.com/kf/U33c00907ab714164a255a0000f40322d7.png
+  [5]: https://ae01.alicdn.com/kf/U99b1d82401c14c2192b3ec5e81fbaa05F.png
+
 
