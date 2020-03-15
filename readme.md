@@ -40,7 +40,7 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 
 ## 实现过程
 
-###1、 登录
+### 1、 登录
 ```
 # 手机号码及邮箱登录URL
 # http://i.chaoxing.com/vlogin?passWord=passwordwu&userName=username
@@ -56,7 +56,7 @@ http://passport2.chaoxing.com/login
 ![schoolid][5]
 
 
-###2、 访问课程主页
+### 2、 访问课程主页
 ```
 # 课程主页url
 # http://mooc1-2.chaoxing.com/visit/interaction
@@ -64,7 +64,7 @@ http://passport2.chaoxing.com/login
 访问课程主页，是获取所有课程的classid和courseid，需要这两个参数，才能拼接出该门课程的签到url
 ![获取classid,courseid][3]
 
-###3、访问任务页面
+### 3、访问任务页面
 ```
 # 课程任务url
 # https://mobilelearn.chaoxing.com/widget/pcpick/stu/index?courseId=209320132&jclassId=18855085
@@ -81,7 +81,7 @@ http://passport2.chaoxing.com/login
 14 问卷
 目前只知道这些
 ```
-###4、签到
+### 4、签到
 
 拿到所有参数后，就可以签到了，直接get请求一下即可
 ```
