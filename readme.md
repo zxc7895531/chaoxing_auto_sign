@@ -8,14 +8,15 @@
 
 反正搞着好玩呗
 
-**暂时只支持手机号码+密码的方式登录**
+## 更新日志
+3.15 支持学号方式登录,目前可以通过(手机号码，邮箱，学号登录)
+3.10 新增手势签到(具体使用在下方)
 
-## 接口使用
+## 接口使用(非长期有效)
 ```
 http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 ```
-访问方式 GET
-
+请求方式GET
 | 参数     |    说明    | 是否必须 |
 | :------- | :--------: | :------: |
 | username |  手机号码  |    是    |
@@ -39,10 +40,17 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 
 ###1、 登录
 ```
-# 登录URL
+# 手机号码及邮箱登录URL
 # http://i.chaoxing.com/vlogin?passWord=passwordwu&userName=username
+
+# 学号登录URL
+# http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0
 ```
 Post请求方式，参数就是账号密码
+关于学号登录方式，有一个额外参数`schoolid`
+http://passport2.chaoxing.com/login
+![schoolid][5]
+
 
 ###2、 访问课程主页
 ```
@@ -86,3 +94,5 @@ QQ机器人结合，真正实现方便的一键操作
   [2]: https://www.z2blog.com//usr/uploads/2020/03/493803449.png
   [3]: http://assets.z2blog.com/imgbed/2020/03/06/20200306606197.png
   [4]: http://assets.z2blog.com/imgbed/2020/03/06/20200306740615.png
+  [5]: https://ae01.alicdn.com/kf/U33c00907ab714164a255a0000f40322d7.png
+
