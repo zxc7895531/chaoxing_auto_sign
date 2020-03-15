@@ -16,19 +16,26 @@ import json
 # 登录URL
 # http://i.chaoxing.com/vlogin?passWord=passwordwu&userName=username
 
+# 手势签到验证URL
+# https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId=134706366&signCode=147896325
+
 
 class AutoSign(object):
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, schoolid=None):
         self.headers = {
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'}
         self.session = requests.session()
-        # 登录页面
-        r = self.session.post(
-            'http://i.chaoxing.com/vlogin?passWord={}&userName={}'.format(password, username))
+        # 登录-手机邮箱登录
+        if schoolid:
+            r = self.session.post('http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0')
+        else:
+            r = self.session.post(
+                'http://i.chaoxing.com/vlogin?passWord={}&userName={}'.format(password, username), headers=self.headers)
+
         print(r.text)
 
     def _get_all_classid(self) -> list:
@@ -80,7 +87,7 @@ class AutoSign(object):
             res = re.findall('<title>(.*)</title>', r.text)
             return res[0]
 
-    def run(self, checkcode=None):
+    def run(self, checkcode):
         # 获取主页所有课程classid和coureseid
         # 因为具体不知道那一节需要签到，则直接遍历所有课程，都进行签到操作
         classid_courseId = self._get_all_classid()
@@ -93,14 +100,12 @@ class AutoSign(object):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         result = loop.run_until_complete(asyncio.gather(*tasks))
-        return_msg = ''
         for d in result:
             if d is not None:
-                return_msg += '{}:{}\r'.format(d['classname'], self._sign(
+                return '{}:{}'.format(d['classname'], self._sign(
                     d['classid'], d['courseid'], d['activeid'], checkcode))
-        return return_msg
 
 
 if __name__ == '__main__':
     s = AutoSign('username', 'password')
-    print(s.run('code'))
+    print(s.run('14753'))
