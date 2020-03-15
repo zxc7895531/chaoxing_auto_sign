@@ -8,6 +8,8 @@
 
 反正搞着好玩呗
 
+**暂时只支持手机号码+密码的方式登录**
+
 ## 接口使用
 ```
 http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
