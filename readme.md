@@ -16,11 +16,11 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码&code=
 ```
 访问方式 GET
 
-【参数】
-|-
-username|用户名|必填
-password|密码|必填
-code|手势验证码|选填
+| 参数     |    说明    | 是否必须 |
+| :------- | :--------: | :------: |
+| username |  手机号码  |    是    |
+| password |    密码    |    是    |
+| code     | 手势验证码 |    否    |
 
 【如何获取手势验证码】
 ![Snipaste_2020-03-09_09-34-37.png][2]
