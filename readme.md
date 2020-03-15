@@ -20,6 +20,28 @@ http://imgbed.z2blog.com/sign?username=登录用户名&password=密码
 在脚本内，写入自己的账号密码，运行就可以自动签到了
 可以将这个脚本放到flask框架，带着账号密码参数，请求一下就自动签到了
 
+# 更新日志
+课表classid获取
+http://mooc1-1.chaoxing.com/api/workTestPendingNew
+
+学号登陆url（post）
+https://passport2.chaoxing.com/login?fid=39037
+
+refer_0x001	http%3A%2F%2Fi.mooc.chaoxing.com
+pid	-1
+pidName	
+fid	39037
+fidName	武汉晴川学院
+allowJoin	0
+isCheckNumCode	1
+f	0
+productid	
+t	true
+uname	20170401036
+password	OTk0LjIwMTd3dQ==
+numcode	5703
+verCode	
+
 ## 实现过程
 
 ###1、 登录

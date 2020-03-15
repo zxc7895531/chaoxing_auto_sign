@@ -16,19 +16,26 @@ import json
 # 登录URL
 # http://i.chaoxing.com/vlogin?passWord=passwordwu&userName=username
 
+# 手势签到验证URL
+# https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId=134706366&signCode=147896325
+
 
 class AutoSign(object):
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, xh_login=False):
         self.headers = {
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.9',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'}
         self.session = requests.session()
-        # 登录页面
-        r = self.session.post(
-            'http://i.chaoxing.com/vlogin?passWord={}&userName={}'.format(password, username))
+        # 登录-手机邮箱登录
+        if xh_login:
+            r = self.session.post('http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid=39037&verify=0')
+        else:
+            r = self.session.post(
+                'http://i.chaoxing.com/vlogin?passWord={}&userName={}'.format(password, username), headers=self.headers)
+
         print(r.text)
 
     def _get_all_classid(self) -> list:
@@ -100,5 +107,5 @@ class AutoSign(object):
 
 
 if __name__ == '__main__':
-    s = AutoSign('user', 'passwd')
-    print(s.run('checkcode'))
+    s = AutoSign('username', 'password')
+    print(s.run('14753'))
