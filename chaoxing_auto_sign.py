@@ -16,18 +16,13 @@ class AutoSign(object):
 		self.session = requests.session()
 		# 登录-手机邮箱登录
 		if schoolid:
+			"https://passport2.chaoxing.com/api/login?name=13550903732&pwd=994.2017wu&schoolid=&verify=0"
 			r = self.session.post(
-				'http://passport2.chaoxing.com/api/login?name={}\
-				&pwd={}\
-				&schoolid=\
-				{}&verify=0'.format(username, password,schoolid))
+				'http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0'.format(username, password,schoolid))
 		else:
-			r = self.session.post(
-				'http://i.chaoxing.com/vlogin?\
-				passWord={}\
-				&userName={}'.format(password, username), headers=self.headers)
-
-		print(r.text)
+			r = self.session.get(
+				'https://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid=&verify=0'.format(username, password), headers=self.headers)
+			print(r.text)
 
 	def _get_all_classid(self) -> list:
 		"""获取课程主页中所有课程的classid和courseid"""
@@ -54,30 +49,8 @@ class AutoSign(object):
 
 	def general_sign(self, classid, courseid, activeid, checkcode=None):
 		"""普通签到"""
-
-		# if checkcode is not None:
-		# 	'''手势签到'''
-		# 	# 手势签到验证URL
-		# 	# https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId=134706366&signCode=147896325
-		# 	check_status = self.session.get(
-		# 		'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/checkSignCode?activeId={}&signCode={}'.format(
-		# 			activeid, checkcode), headers=self.headers, verify=False)
-		# 	check_status = json.loads(check_status.text)
-		# 	if check_status['result'] == '0':
-		# 		return '验证码错误'
-		# 	r = self.session.get(
-		# 		'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?courseId={}&classId={}&activeId={}'.format(
-		# 			courseid, classid, activeid), headers=self.headers, verify=False)
-		# 	res = re.findall('<title>(.*)</title>', r.text)
-		# 	return res[0]
-		#
-		# else:
 		r = self.session.get(
-			'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?\
-			activeId={}\
-			&classId={}\
-			&fid=39037\
-			&courseId={}'.format(
+			'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
 				activeid, classid, courseid), headers=self.headers, verify=False)
 		res = re.findall('<title>(.*)</title>', r.text)
 		return res[0]
@@ -105,8 +78,9 @@ class AutoSign(object):
 
 	def run(self):
 		"""开始签到"""
-		classid_courseId = self._get_all_classid()
 		tasks = []
+		# 获取所有课程的classid和course_id
+		classid_courseId = self._get_all_classid()
 		# 获取所有课程activeid
 		for i in classid_courseId:
 			coroutine = self._get_activeid(i[1], i[0], i[2])
@@ -115,13 +89,15 @@ class AutoSign(object):
 		loop = asyncio.new_event_loop()
 		asyncio.set_event_loop(loop)
 		result = loop.run_until_complete(asyncio.gather(*tasks))
-
 		for d in result:
 			if d is not None:
 				return '{}:{}'.format(d['classname'], self.sign_in(
 					d['classid'], d['courseid'], d['activeid']))
+		else:
+			return "当前暂无签到任务"
 
 
 if __name__ == '__main__':
 	s = AutoSign('此处填写你的账号', '此处填写你的密码')
+	# s = AutoSign('13550903732', '994.2017wu')
 	print(s.run())
