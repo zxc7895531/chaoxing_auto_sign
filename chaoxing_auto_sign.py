@@ -16,7 +16,6 @@ class AutoSign(object):
 		self.session = requests.session()
 		# 登录-手机邮箱登录
 		if schoolid:
-			"https://passport2.chaoxing.com/api/login?name=13550903732&pwd=994.2017wu&schoolid=&verify=0"
 			r = self.session.post(
 				'http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0'.format(username, password,schoolid))
 		else:

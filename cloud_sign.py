@@ -6,11 +6,11 @@ import json
 import csv
 
 
-# user_info = {
-# 	'username': '填写你的账号',
-# 	'password': '填写你的密码',
-# 	'学校id': '' # 学号登录才需要填写
-# }
+user_info = {
+	'username': '填写你的账号',
+	'password': '填写你的密码',
+	'学校id': '' # 学号登录才需要填写
+}
 
 
 csv_head = ['username', 'cookies']
@@ -62,7 +62,6 @@ class AutoSign(object):
 
 		# 登录-手机邮箱登录
 		if schoolid:
-			"https://passport2.chaoxing.com/api/login?name=13550903732&pwd=994.2017wu&schoolid=&verify=0"
 			r = self.session.post(
 				'http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0'.format(username, password, schoolid))
 			return
@@ -146,22 +145,22 @@ class AutoSign(object):
 			return "当前暂无签到任务"
 
 
-# def main_handler(event=None, context=None):
-# 	if "username" and "password" in event.keys():
-# 		# api请求
-# 		s = AutoSign(event['username'], event['password'])
-# 	else:
-# 		# 自身函数执行的时候，才执行这个，可用于定时任务
-# 		s = AutoSign(user_info['username'], user_info['password'])
-# 	result = s.run()
-# 	return result
-
-
-def main_handler():
-	# 自身函数执行的时候，才执行这个，可用于定时任务
-	s = AutoSign(user_info['username'], user_info['password'])
+def main_handler(event=None, context=None):
+	if "username" and "password" in event.keys():
+		# api请求
+		s = AutoSign(event['username'], event['password'])
+	else:
+		# 自身函数执行的时候，才执行这个，可用于定时任务
+		s = AutoSign(user_info['username'], user_info['password'])
 	result = s.run()
 	return result
+
+
+# def main_handler():
+# 	# 自身函数执行的时候，才执行这个，可用于定时任务
+# 	s = AutoSign(user_info['username'], user_info['password'])
+# 	result = s.run()
+# 	return result
 
 
 if __name__ == '__main__':
