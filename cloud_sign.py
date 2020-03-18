@@ -5,12 +5,13 @@ import re
 import json
 import requests
 
-
 user_info = {
-	'username': '填写你的账号',
-	'password': '填写你的密码',
-	'schoolid': '' # 学号登录才需要填写
+	'username': 'xxxx',
+	'password': 'xxxx',
+	'schoolid': ''  # 学号登录才需要填写
 }
+
+cookies_path = "cookies.json"  # cookies.json 保存路径
 
 
 class AutoSign(object):
@@ -23,6 +24,7 @@ class AutoSign(object):
 			'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
 			'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.100 Safari/537.36'}
 		self.session = requests.session()
+		self.session.headers = self.headers
 		# 读取指定用户的cookies
 		if self.check_cookies_status(username) is False:
 			self.login(password, schoolid, username)
@@ -31,19 +33,19 @@ class AutoSign(object):
 	def save_cookies(self, username):
 		"""保存cookies"""
 		new_cookies = self.session.cookies.get_dict()
-		with open("cookies.json", "r") as f:
+		with open(cookies_path, "r") as f:
 			data = json.load(f)
 			data[username] = new_cookies
-			with open("cookies.json", 'w') as f2:
+			with open(cookies_path, 'w') as f2:
 				json.dump(data, f2)
 
 	def check_cookies_status(self, username):
 		"""检测json文件内是否存有cookies,有则检测，无则登录"""
 		if "cookies.json" not in os.listdir("./"):
-			with open('cookies.json', 'w+') as f:
+			with open(cookies_path, 'w+') as f:
 				f.write("{}")
 
-		with open('cookies.json', 'r') as f:
+		with open(cookies_path, 'r') as f:
 
 			# json文件有无账号cookies, 没有，则直接返回假
 			try:
@@ -69,7 +71,8 @@ class AutoSign(object):
 		# 登录-手机邮箱登录
 		if schoolid:
 			r = self.session.post(
-				'http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0'.format(username, password, schoolid))
+				'http://passport2.chaoxing.com/api/login?name={}&pwd={}&schoolid={}&verify=0'.format(username, password,
+				                                                                                     schoolid))
 			if json.loads(r.text)['result']:
 				print("登录成功")
 			else:
@@ -84,7 +87,7 @@ class AutoSign(object):
 			else:
 				print("登录失败，请检查账号密码是否正确")
 
-	def _get_all_classid(self) -> list:
+	def get_all_classid(self) -> list:
 		"""获取课程主页中所有课程的classid和courseid"""
 		re_rule = r'<li style="position:relative">[\s]*<input type="hidden" name="courseId" value="(.*)" />[\s].*<input type="hidden" name="classId" value="(.*)" />[\s].*[\s].*[\s].*[\s].*[\s].*[\s].*[\s].*[\s].*[s].*[\s]*[\s].*[\s].*[\s].*[\s].*[\s].*<a  href=\'.*\' target="_blank" title=".*">(.*)</a>'
 		r = self.session.get(
@@ -93,7 +96,7 @@ class AutoSign(object):
 		res = re.findall(re_rule, r.text)
 		return res
 
-	async def _get_activeid(self, classid, courseid, classname):
+	async def get_activeid(self, classid, courseid, classname):
 		"""访问任务面板获取课程的活动id"""
 		sign_re_rule = r'<div class="Mct" onclick="activeDetail\((.*),2,null\)">[\s].*[\s].*[\s].*[\s].*<dd class="green">.*</dd>'
 		r = self.session.get(
@@ -112,19 +115,71 @@ class AutoSign(object):
 		r = self.session.get(
 			'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
 				activeid, classid, courseid), headers=self.headers, verify=False)
-		res = re.findall('<title>(.*)</title>', r.text)
-		return res[0]
+		title = re.findall('<title>(.*)</title>', r.text)[0]
+		if "签到成功" not in title:
+			return "拍照签到"
+		else:
+			sign_date = re.findall('<em id="st">(.*)</em>', r.text)[0]
+			return '[{}]-[{}]'.format(sign_date, '签到成功')
 
 	def hand_sign(self, classid, courseid, activeid):
 		"""手势签到"""
-		hand_sign_url = "https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?\
-		&courseId={}\
-		&classId={}\
-		&activeId={}".format(
+		hand_sign_url = "https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?&courseId={}&classId={}&activeId={}".format(
 			courseid, classid, activeid)
 		r = self.session.get(hand_sign_url, headers=self.headers, verify=False)
 		res = re.findall('<title>(.*)</title>', r.text)
 		return res[0]
+
+	def qcode_sign(self, activeId):
+		"""二维码签到"""
+		params = {
+			'name': '',
+			'activeId': activeId,
+			'uid': '',
+			'clientip': '',
+			'useragent': '',
+			'latitude': '-1',
+			'longitude': '-1',
+			'fid': '',
+			'appType': '15'
+		}
+		response = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
+		return response.text
+
+	def addr_sign(self, activeId):
+		"""位置签到"""
+		params = {
+			'name': '',
+			'activeId': activeId,
+			'address': '中国',
+			'uid': '',
+			'clientip': '0.0.0.0',
+			'latitude': '-2',
+			'longitude': '-1',
+			'fid': '',
+			'appType': '15',
+			'ifTiJiao': '1'
+		}
+		response = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
+		return response.text
+
+	def tphoto_sign(self, activeId):
+		"""拍照签到"""
+		params = {
+			'name': '',
+			'activeId': activeId,
+			'address': '中国',
+			'uid': '',
+			'clientip': '0.0.0.0',
+			'latitude': '-2',
+			'longitude': '-1',
+			'fid': '',
+			'appType': '15',
+			'ifTiJiao': '1',
+			'objectId': '5712278eff455f9bcd76a85cd95c5de3'
+		}
+		res = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
+		return res.text
 
 	def sign_in(self, classid, courseid, activeid):
 		r = self.general_sign(classid, courseid, activeid)
@@ -133,17 +188,22 @@ class AutoSign(object):
 		elif "手势签到" in r:
 			sign_status = self.hand_sign(classid, courseid, activeid)
 			return sign_status
+		elif "二维码签到" in r:
+			return '二维码签到', self.qcode_sign(activeid)
 		elif "位置签到" in r:
-			pass
+			return '位置签到', self.addr_sign(activeid)
+		elif "拍照签到" in r:
+			return '拍照签到', self.tphoto_sign(activeid)
 
 	def run(self):
-		"""开始签到"""
+		"""开始所有签到任务"""
 		tasks = []
 		# 获取所有课程的classid和course_id
-		classid_courseId = self._get_all_classid()
+		classid_courseId = self.get_all_classid()
+
 		# 获取所有课程activeid
 		for i in classid_courseId:
-			coroutine = self._get_activeid(i[1], i[0], i[2])
+			coroutine = self.get_activeid(i[1], i[0], i[2])
 			tasks.append(coroutine)
 
 		loop = asyncio.new_event_loop()
