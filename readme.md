@@ -47,7 +47,7 @@ http://101.89.182.58:9090/docs#/default/sign_sign__post
 | :------- | :--------: | :------: |
 | username |    账号    |    是    |
 | password |    密码    |    是    |
-| fid      |   学校ID   |    否    |
+| schoolid |   学校ID   |    否    |
 
 
 **学号登录，fid参数必填，手机号码登录只要求账号密码两个参数**
