@@ -18,6 +18,8 @@ http://passport2.chaoxing.com/login
 
 
 ## 更新日志
+3.18 修复登录失败问题
+
 3.17 更新手势签到，无需手动输入验证码
 
 3.15 支持学号方式登录,目前可以通过(手机号码，邮箱，学号登录)
@@ -25,8 +27,9 @@ http://passport2.chaoxing.com/login
 3.10 新增手势签到(具体使用在下方)
 
 ## 其他签到脚本推荐
-我们学校目前只有手势签到和普通签到，涉及不到全部
-所以推荐些其他的项目
+我们学校目前只有手势签到和普通签到，涉及不到全部，也可以看下其他老哥们的项目
+
+
 | 项目地址                                                | 开发语言   | 备注                                           |
 | ------------------------------------------------------- | ---------- | ---------------------------------------------- |
 | https://github.com/Wzb3422/auto-sign-chaoxing           | TypeScript | 超星学习通自动签到，梦中刷网课       |
@@ -39,7 +42,17 @@ http://passport2.chaoxing.com/login
 ```
 http://101.89.182.58:9090/sign/
 ```
-测试请求
+请求代码示例：
+```python
+params = {
+    'username': 'xxxxx',
+    'password': 'xxxxx',
+    'schoolid': '',
+}
+requests.post('http://101.89.182.58:9090/sign/', params=params)
+```
+
+测试请求：
 http://101.89.182.58:9090/docs#/default/sign_sign__post
 
 请求方式**POST**
