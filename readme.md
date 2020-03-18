@@ -18,16 +18,18 @@ http://passport2.chaoxing.com/login
 
 
 ## 更新日志
+
+3.18 新增二维码，拍照，位置签到
+
 3.18 修复登录失败问题
 
 3.17 更新手势签到，无需手动输入验证码
 
 3.15 支持学号方式登录,目前可以通过(手机号码，邮箱，学号登录)
 
-3.10 新增手势签到(具体使用在下方)
+3.10 新增手势签到
 
 ## 其他签到脚本推荐
-我们学校目前只有手势签到和普通签到，涉及不到全部，也可以看下其他老哥们的项目
 
 
 | 项目地址                                                | 开发语言   | 备注                                           |
@@ -39,9 +41,11 @@ http://passport2.chaoxing.com/login
 
 
 ## 接口使用(非长期有效)
+
 ```
 http://101.89.182.58:9090/sign/
 ```
+
 请求代码示例：
 ```python
 params = {
@@ -52,22 +56,26 @@ params = {
 requests.post('http://101.89.182.58:9090/sign/', params=params)
 ```
 
-测试请求：
+在线接口调试：
 http://101.89.182.58:9090/docs#/default/sign_sign__post
 
-请求方式**POST**
-| 参数     |    说明    | 是否必须 |
-| :------- | :--------: | :------: |
-| username |    账号    |    是    |
-| password |    密码    |    是    |
-| schoolid |   学校ID   |    否    |
 
+| 请求方式 |   参数   |  说明  | 是否必须 |
+| :------: | :------: | :----: | :------: |
+|          | username |  账号  |    是    |
+|   **POST**   | password |  密码  |    是    |
+|          | schoolid | 学校ID |    否    |
 
-**学号登录，fid参数必填，手机号码登录只要求账号密码两个参数**
 
 请求后，会自动签到所需要签到的课程
+
+**如果是学号登录，fid参数必填**
 **接口仅做学习参考，不建议长期使用**
 
+## 扩展
+1. 配合fastapi，挂到服务器上，定时请求，全天自动签到
+2. 做成QQ或微信机器人插件，可以面向大众用户使用
+3. 结合Server酱，可以将签到结果推送给用户微信
 
 ## 实现过程
 
@@ -119,10 +127,6 @@ http://passport2.chaoxing.com/login
 # 签到url
 # https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId=126433134&classId=19047512&courseId=209403053
 ```
-
-## 扩展
-1. 配合fastapi，挂到服务器上，定时请求，全天自动签到
-2. 做成QQ或微信机器人插件，可以面向大众用户使用
 
 
   [1]: http://assets.z2blog.com/imgbed/2020/03/06/20200306880794.png
