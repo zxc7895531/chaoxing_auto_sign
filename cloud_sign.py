@@ -1,14 +1,15 @@
 # -*- coding: utf8 -*-
-import re
-import requests
+import os
 import asyncio
+import re
 import json
+import requests
 
 
 user_info = {
 	'username': '填写你的账号',
 	'password': '填写你的密码',
-	'学校id': '' # 学号登录才需要填写
+	'schoolid': '' # 学号登录才需要填写
 }
 
 
@@ -38,6 +39,10 @@ class AutoSign(object):
 
 	def check_cookies_status(self, username):
 		"""检测json文件内是否存有cookies,有则检测，无则登录"""
+		if "cookies.json" not in os.listdir("./"):
+			with open('cookies.json', 'w+') as f:
+				f.write("{}")
+
 		with open('cookies.json', 'r') as f:
 
 			# json文件有无账号cookies, 没有，则直接返回假
