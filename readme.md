@@ -18,6 +18,8 @@ http://passport2.chaoxing.com/login
 
 
 ## 更新日志
+3.18 修复登录失败问题
+
 3.17 更新手势签到，无需手动输入验证码
 
 3.15 支持学号方式登录,目前可以通过(手机号码，邮箱，学号登录)
@@ -25,8 +27,9 @@ http://passport2.chaoxing.com/login
 3.10 新增手势签到(具体使用在下方)
 
 ## 其他签到脚本推荐
-我们学校目前只有手势签到和普通签到，涉及不到全部
-所以推荐些其他的项目
+我们学校目前只有手势签到和普通签到，涉及不到全部，也可以看下其他老哥们的项目
+
+
 | 项目地址                                                | 开发语言   | 备注                                           |
 | ------------------------------------------------------- | ---------- | ---------------------------------------------- |
 | https://github.com/Wzb3422/auto-sign-chaoxing           | TypeScript | 超星学习通自动签到，梦中刷网课       |
@@ -37,23 +40,33 @@ http://passport2.chaoxing.com/login
 
 ## 接口使用(非长期有效)
 ```
-https://service-po4l9bfo-1259447870.gz.apigw.tencentcs.com/test/chaoxing_auto_sign?username=账号&password=密码&fid=学校ID
+http://101.89.182.58:9090/sign/
 ```
-请求方式GET
+请求代码示例：
+```python
+params = {
+    'username': 'xxxxx',
+    'password': 'xxxxx',
+    'schoolid': '',
+}
+requests.post('http://101.89.182.58:9090/sign/', params=params)
+```
+
+测试请求：
+http://101.89.182.58:9090/docs#/default/sign_sign__post
+
+请求方式**POST**
 | 参数     |    说明    | 是否必须 |
 | :------- | :--------: | :------: |
 | username |    账号    |    是    |
 | password |    密码    |    是    |
-| fid      |   学校ID   |    否    |
+| schoolid |   学校ID   |    否    |
+
+
 **学号登录，fid参数必填，手机号码登录只要求账号密码两个参数**
 
 请求后，会自动签到所需要签到的课程
 **接口仅做学习参考，不建议长期使用**
-
-
-## 脚本使用
-在脚本内，写入自己的账号密码，运行就可以自动签到了
-可以将这个脚本放到flask框架，带着账号密码参数，请求一下就自动签到了
 
 
 ## 实现过程
@@ -108,8 +121,8 @@ http://passport2.chaoxing.com/login
 ```
 
 ## 扩展
-做好自动签到脚本后，可以和web结合
-QQ机器人结合，真正实现方便的一键操作
+1. 配合fastapi，挂到服务器上，定时请求，全天自动签到
+2. 做成QQ或微信机器人插件，可以面向大众用户使用
 
 
   [1]: http://assets.z2blog.com/imgbed/2020/03/06/20200306880794.png
