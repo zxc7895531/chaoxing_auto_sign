@@ -1,17 +1,34 @@
 # -*- coding: utf8 -*-
 import os
+import time
+import urllib3
 import asyncio
 import re
 import json
 import requests
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+
+# =================配置区start===================
+
+# 学习通账号密码
 user_info = {
-	'username': 'xxxx',
-	'password': 'xxxx',
+	'username': 'xxxxxxxxxx',
+	'password': 'xxxxxxxxxx',
 	'schoolid': ''  # 学号登录才需要填写
 }
 
+# server酱
+server_chan_sckey = 'xxxxxxxxxxxxx'  # 申请地址http://sc.ftqq.com/3.version
+server_chan = {
+	'status': True,  # 如果关闭server酱功能，请改为False
+	'url': 'https://sc.ftqq.com/{}.send'.format(server_chan_sckey)
+}
+
+# 学习通账号cookies缓存文件路径
 cookies_path = "cookies.json"  # cookies.json 保存路径
+
+# =================配置区end===================
 
 
 class AutoSign(object):
@@ -98,37 +115,53 @@ class AutoSign(object):
 
 	async def get_activeid(self, classid, courseid, classname):
 		"""访问任务面板获取课程的活动id"""
-		sign_re_rule = r'<div class="Mct" onclick="activeDetail\((.*),2,null\)">[\s].*[\s].*[\s].*[\s].*<dd class="green">.*</dd>'
+		# sign_re_rule = r'<div class="Mct" onclick="activeDetail\((.*),2,null\)">[\s].*[\s].*[\s].*[\s].*<dd class="green">.*</dd>'
+		# sign_type_re_rule = r'<a href="javascript:;" shape="rect">\[(.*)\]</a>'
+		re_rule = r'<div class="Mct" onclick="activeDetail\((.*),2,null\)">[\s].*[\s].*[\s].*[\s].*<dd class="green">.*</dd>[\s]+[\s]</a>[\s]+</dl>[\s]+<div class="Mct_center wid660 fl">[\s]+<a href="javascript:;" shape="rect">(.*)</a>'
 		r = self.session.get(
 			'https://mobilelearn.chaoxing.com/widget/pcpick/stu/index?courseId={}&jclassId={}'.format(
 				courseid, classid), headers=self.headers, verify=False)
-		res = re.findall(sign_re_rule, r.text)
+		res = re.findall(re_rule, r.text)
+		# sign_type = re.findall(sign_type_re_rule, r.text)
+		# print(sign_type)
 		if res != []:  # 满足签到条件
 			return {
 				'classid': classid,
 				'courseid': courseid,
-				'activeid': res[0],
-				'classname': classname}
+				'activeid': res[0][0],
+				'classname': classname,
+				'sign_type': res[0][1]
+			}
 
-	def general_sign(self, classid, courseid, activeid, checkcode=None):
+	def general_sign(self, classid, courseid, activeid):
 		"""普通签到"""
 		r = self.session.get(
 			'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId={}&classId={}&fid=39037&courseId={}'.format(
 				activeid, classid, courseid), headers=self.headers, verify=False)
 		title = re.findall('<title>(.*)</title>', r.text)[0]
 		if "签到成功" not in title:
-			return "拍照签到"
+			# 网页标题不含签到成功，则为拍照签到
+			return self.tphoto_sign(activeid)
 		else:
 			sign_date = re.findall('<em id="st">(.*)</em>', r.text)[0]
-			return '[{}]-[{}]'.format(sign_date, '签到成功')
+			s = {
+				'date': sign_date,
+				'status': title
+			}
+			return s
 
 	def hand_sign(self, classid, courseid, activeid):
 		"""手势签到"""
 		hand_sign_url = "https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/signIn?&courseId={}&classId={}&activeId={}".format(
 			courseid, classid, activeid)
 		r = self.session.get(hand_sign_url, headers=self.headers, verify=False)
-		res = re.findall('<title>(.*)</title>', r.text)
-		return res[0]
+		title = re.findall('<title>(.*)</title>', r.text)
+		sign_date = re.findall('<em id="st">(.*)</em>', r.text)[0]
+		s = {
+			'date': sign_date,
+			'status': title
+		}
+		return s
 
 	def qcode_sign(self, activeId):
 		"""二维码签到"""
@@ -143,8 +176,12 @@ class AutoSign(object):
 			'fid': '',
 			'appType': '15'
 		}
-		response = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
-		return response.text
+		res = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
+		s = {
+			'date': time.strftime("%m-%d %H:%M", time.localtime()) ,
+			'status': res.text
+		}
+		return s
 
 	def addr_sign(self, activeId):
 		"""位置签到"""
@@ -160,8 +197,12 @@ class AutoSign(object):
 			'appType': '15',
 			'ifTiJiao': '1'
 		}
-		response = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
-		return response.text
+		res = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
+		s = {
+			'date': time.strftime("%m-%d %H:%M", time.localtime()),
+			'status': res.text
+		}
+		return s
 
 	def tphoto_sign(self, activeId):
 		"""拍照签到"""
@@ -179,29 +220,37 @@ class AutoSign(object):
 			'objectId': '5712278eff455f9bcd76a85cd95c5de3'
 		}
 		res = self.session.get('https://mobilelearn.chaoxing.com/pptSign/stuSignajax', params=params)
-		return res.text
+		print(res.text)
+		s = {
+			'date': time.strftime("%m-%d %H:%M", time.localtime()),
+			'status': res.text
+		}
+		return s
 
-	def sign_in(self, classid, courseid, activeid):
-		r = self.general_sign(classid, courseid, activeid)
-		if "签到成功" in r:
+	def sign_in(self, classid, courseid, activeid, sign_type):
+		"""签到类型的逻辑判断"""
+		if "手势" in sign_type:
+			# test:('拍照签到', 'success')
+			return self.hand_sign(classid, courseid, activeid)
+
+		elif "二维码" in sign_type:
+			return self.qcode_sign(activeid)
+
+		elif "位置" in sign_type:
+			return self.addr_sign(activeid)
+
+		else:
+			# '[2020-03-20 14:42:35]-[签到成功]'
+			r = self.general_sign(classid, courseid, activeid)
 			return r
-		elif "手势签到" in r:
-			sign_status = self.hand_sign(classid, courseid, activeid)
-			return sign_status
-		elif "二维码签到" in r:
-			return '二维码签到', self.qcode_sign(activeid)
-		elif "位置签到" in r:
-			return '位置签到', self.addr_sign(activeid)
-		elif "拍照签到" in r:
-			return '拍照签到', self.tphoto_sign(activeid)
 
-	def run(self):
+	def sign_tasks_run(self):
 		"""开始所有签到任务"""
 		tasks = []
 		# 获取所有课程的classid和course_id
 		classid_courseId = self.get_all_classid()
 
-		# 获取所有课程activeid
+		# 获取所有课程activeid和签到类型
 		for i in classid_courseId:
 			coroutine = self.get_activeid(i[1], i[0], i[2])
 			tasks.append(coroutine)
@@ -209,33 +258,51 @@ class AutoSign(object):
 		loop = asyncio.new_event_loop()
 		asyncio.set_event_loop(loop)
 		result = loop.run_until_complete(asyncio.gather(*tasks))
-		sign_msg = ""
+
+		# sign_msg = ""
+		sign_msg = {}
+		final_msg = []
 		for d in result:
 			if d is not None:
-				sign_msg += '{}:{}'.format(d['classname'], self.sign_in(
-					d['classid'], d['courseid'], d['activeid']))
-		return sign_msg
+				s = self.sign_in(d['classid'], d['courseid'], d['activeid'], d['sign_type'])
+				# 签到课程， 签到时间， 签到状态
+				sign_msg = {
+					'name': d['classname'],
+					'date': s['date'],
+					'status': s['status']
+				}
+				final_msg.append(sign_msg)
+		return final_msg
 
 
-def main_handler(event=None, context=None):
-	"""腾讯云函数，执行这个方法"""
-	if "username" and "password" in event.keys():
-		# api请求
-		s = AutoSign(event['username'], event['password'])
-	else:
-		# 自身函数执行的时候，才执行这个，可用于定时任务
-		s = AutoSign(user_info['username'], user_info['password'])
-	result = s.run()
-	return result
+def server_chan_send(msg):
+	"""server酱将消息推送至微信"""
+	desp = ''
+	for d in msg:
+		desp = '|  **课程名**  |   {}   |\r| :----------: | :---------- |\r'.format(d['name'])
+		desp += '| **签到时间** |   {}   |\r'.format(d['date'])
+		desp += '| **签到状态** |   {}   |\r'.format(d['status'])
+
+	params = {
+		'text': '您的网课签到消息来啦！！',
+		'desp': desp
+	}
+
+	requests.get(server_chan['url']+server_chan['sckey'], params=params)
 
 
 def local_run():
 	# 本地运行使用
 	s = AutoSign(user_info['username'], user_info['password'])
-	result = s.run()
-	print(result)
-	return result
+	result = s.sign_tasks_run()
+	if result:
+		if server_chan['status']:
+			server_chan_send(result)
+		return result
+	else:
+		server_chan_send('暂无签到任务')
+		return "暂无签到任务"
 
 
 if __name__ == '__main__':
-	local_run()
+	print(local_run())
