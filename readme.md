@@ -67,6 +67,7 @@ http://101.89.182.58:9090/docs#/default/sign_sign__post
 |          | username |  账号  |    是    |
 |   **POST**   | password |  密码  |    是    |
 |          | schoolid | 学校ID |    否    |
+| | sckey | server酱key | 否 |
 
 
 请求后，会自动签到所需要签到的课程

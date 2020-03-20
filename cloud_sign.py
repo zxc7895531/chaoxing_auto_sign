@@ -288,7 +288,7 @@ def server_chan_send(msg):
 		'desp': desp
 	}
 
-	requests.get(server_chan['url']+server_chan['sckey'], params=params)
+	requests.get(server_chan['url'], params=params)
 
 
 def local_run():
