@@ -13,13 +13,13 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 学习通账号密码
 user_info = {
-	'username': 'xxxxxxxxxx',
-	'password': 'xxxxxxxxxx',
+	'username': 'xxxxxx',
+	'password': 'xxxxxx',
 	'schoolid': ''  # 学号登录才需要填写
 }
 
 # server酱
-server_chan_sckey = 'xxxxxxxxxxxxx'  # 申请地址http://sc.ftqq.com/3.version
+server_chan_sckey = 'SCU90086T54e7eddb61b45e464d6582c79f42d5445e71de6b4c4ad'  # 申请地址http://sc.ftqq.com/3.version
 server_chan = {
 	'status': True,  # 如果关闭server酱功能，请改为False
 	'url': 'https://sc.ftqq.com/{}.send'.format(server_chan_sckey)
@@ -300,7 +300,6 @@ def local_run():
 			server_chan_send(result)
 		return result
 	else:
-		server_chan_send('暂无签到任务')
 		return "暂无签到任务"
 
 
