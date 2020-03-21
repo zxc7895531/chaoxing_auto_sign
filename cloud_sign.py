@@ -19,7 +19,7 @@ user_info = {
 }
 
 # server酱
-server_chan_sckey = 'SCU90086T54e7eddb61b45e464d6582c79f42d5445e71de6b4c4ad'  # 申请地址http://sc.ftqq.com/3.version
+server_chan_sckey = 'SCU90086T7eb391782ce9afbfdeca283a1a94825d5e748f46b4b3d'  # 申请地址http://sc.ftqq.com/3.version
 server_chan = {
 	'status': True,  # 如果关闭server酱功能，请改为False
 	'url': 'https://sc.ftqq.com/{}.send'.format(server_chan_sckey)
@@ -27,6 +27,9 @@ server_chan = {
 
 # 学习通账号cookies缓存文件路径
 cookies_path = "cookies.json"  # cookies.json 保存路径
+
+# activeid保存文件路径
+activeid_path = "activeid.txt"
 
 # =================配置区end===================
 
@@ -103,6 +106,16 @@ class AutoSign(object):
 				print("登录成功")
 			else:
 				print("登录失败，请检查账号密码是否正确")
+
+	def check_activeid(self, activeid):
+		"""检测activeid是否存在，不存在则添加"""
+		with open(activeid_path, 'r') as f:
+			s = f.read()
+			if activeid in s:
+				return True
+		with open(activeid_path, 'w+') as f:
+			f.writelines(activeid)
+			return False
 
 	def get_all_classid(self) -> list:
 		"""获取课程主页中所有课程的classid和courseid"""
@@ -229,6 +242,8 @@ class AutoSign(object):
 
 	def sign_in(self, classid, courseid, activeid, sign_type):
 		"""签到类型的逻辑判断"""
+		if self.check_activeid(activeid):
+			return
 		if "手势" in sign_type:
 			# test:('拍照签到', 'success')
 			return self.hand_sign(classid, courseid, activeid)
@@ -247,6 +262,8 @@ class AutoSign(object):
 	def sign_tasks_run(self):
 		"""开始所有签到任务"""
 		tasks = []
+		sign_msg = {}
+		final_msg = []
 		# 获取所有课程的classid和course_id
 		classid_courseId = self.get_all_classid()
 
@@ -259,12 +276,11 @@ class AutoSign(object):
 		asyncio.set_event_loop(loop)
 		result = loop.run_until_complete(asyncio.gather(*tasks))
 
-		# sign_msg = ""
-		sign_msg = {}
-		final_msg = []
 		for d in result:
 			if d is not None:
 				s = self.sign_in(d['classid'], d['courseid'], d['activeid'], d['sign_type'])
+				if not s:
+					return
 				# 签到课程， 签到时间， 签到状态
 				sign_msg = {
 					'name': d['classname'],
@@ -293,6 +309,9 @@ def server_chan_send(msg):
 
 def local_run():
 	# 本地运行使用
+	if "activeid.txt" not in os.listdir("./"):
+		with open(activeid_path, 'w+') as f:
+			f.write("")
 	s = AutoSign(user_info['username'], user_info['password'])
 	result = s.sign_tasks_run()
 	if result:
