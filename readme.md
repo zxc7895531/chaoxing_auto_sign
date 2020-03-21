@@ -16,6 +16,9 @@ http://passport2.chaoxing.com/login
 
 ## 更新日志
 
+3.21
+- 加入activeid缓存，会将所有签到成功的activeid记录在activeid.txt,避免重复触发签到
+
 3.20 
 - 加入server酱，签到消息可推送至微信
 - 纠正因证书问题，导致运行过程中，输出大量异常消息
