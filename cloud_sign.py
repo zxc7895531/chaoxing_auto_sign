@@ -6,6 +6,10 @@ import asyncio
 import re
 import json
 import requests
+import time
+import eventlet
+import sys
+eventlet.monkey_patch()
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -13,13 +17,25 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 学习通账号密码
 user_info = {
-	'username': 'xxxxxx',
-	'password': 'xxxxxx',
-	'schoolid': ''  # 学号登录才需要填写
+	'username': '', # 账号（学号登录请填写学号）
+	'password': '', # 密码
+	'schoolid': ''  # 学校ID（学号登录才需要填写）
 }
 
+# =================配置区end===================
+
+# ==============高级配置区start================
+
+# 超时重启设置
+timeoutstatus=True # 超时重启功能开关，开启为True，关闭为False
+timeouttime=60     # 超时时间设置，单位为秒，默认一分钟
+
+# 自动重启设置
+restartstatus=True # 自动重启功能开关，开启为True，关闭为False
+restarttime=5400   # 自动重启间隔，单位为秒，默认1h30m(一个半小时)
+
 # server酱
-server_chan_sckey = 'SCU90086T7eb391782ce9afbfdeca283a1a94825d5e748f46b4b3d'  # 申请地址http://sc.ftqq.com/3.version
+server_chan_sckey = ''  # 申请地址http://sc.ftqq.com/3.version
 server_chan = {
 	'status': True,  # 如果关闭server酱功能，请改为False
 	'url': 'https://sc.ftqq.com/{}.send'.format(server_chan_sckey)
@@ -31,8 +47,11 @@ cookies_path = "cookies.json"  # cookies.json 保存路径
 # activeid保存文件路径
 activeid_path = "activeid.txt"
 
-# =================配置区end===================
+# ===============高级配置区end=================
 
+def restart_program():
+	python = sys.executable
+	os.execl(python, python, * sys.argv)
 
 class AutoSign(object):
 
@@ -323,4 +342,31 @@ def local_run():
 
 
 if __name__ == '__main__':
-	print(local_run())
+	if restartstatus:
+		while True:
+			returnmsg=""
+			with eventlet.Timeout(timeouttime,False):
+				print('开始运行程序!')
+				returnmsg=local_run()
+			if returnmsg == "":
+				if timeoutstatus:
+					returnmsg="请求超时！重启程序中！"
+					restart_program()
+				else:
+					returnmsg="请求超时！退出程序中！"
+			else:
+				print("执行成功！消息返回:\n"+returnmsg)
+				time.sleep(restarttime)
+	else:
+		returnmsg=""
+		with eventlet.Timeout(timeouttime,False):
+			print('开始运行程序!')
+			returnmsg=local_run()
+		if returnmsg == "":
+			if timeoutstatus:
+				returnmsg="请求超时！重启程序中！"
+				restart_program()
+			else:
+				returnmsg="请求超时！退出程序中！"
+		else:
+			print("执行成功！消息返回:\n"+returnmsg)
