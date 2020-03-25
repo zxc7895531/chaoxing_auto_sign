@@ -350,10 +350,10 @@ if __name__ == '__main__':
 				returnmsg=local_run()
 			if returnmsg == "":
 				if timeoutstatus:
-					returnmsg="请求超时！重启程序中！"
+					print("请求超时！重启程序中！")
 					restart_program()
 				else:
-					returnmsg="请求超时！退出程序中！"
+					print("请求超时！退出程序中！")
 			else:
 				print("执行成功！消息返回:\n"+returnmsg)
 				time.sleep(restarttime)
@@ -364,9 +364,9 @@ if __name__ == '__main__':
 			returnmsg=local_run()
 		if returnmsg == "":
 			if timeoutstatus:
-				returnmsg="请求超时！重启程序中！"
+				print("请求超时！重启程序中！")
 				restart_program()
 			else:
-				returnmsg="请求超时！退出程序中！"
+				print("请求超时！退出程序中！")
 		else:
 			print("执行成功！消息返回:\n"+returnmsg)
